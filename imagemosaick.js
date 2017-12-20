@@ -43,7 +43,7 @@ class Tileset {
     this.folder = folder
     this.tileSize = tileSize
     this.hslTable = null
-    this.cacheBase = path.join(os.tmpdir(), 'tileset', path.dirname(folder))
+    this.cacheBase = path.join(os.tmpdir(), 'tileset-' + path.dirname(folder))
   }
 
   colorTableRecurse (i, files, colors) {
@@ -175,7 +175,7 @@ function standardizeOptions (options) {
   options.verbose = optionOrDefault(options.verbose, false)
   options.verboseEx = optionOrDefault(options.verboseEx, false)
   options.maxMosaicSize = optionOrDefault(options.maxMosaicSize, 200)
-  options.threshold = optionOrDefault(options.threshold, 30)
+  options.threshold = optionOrDefault(options.threshold, 256)
 
   return options
 }
