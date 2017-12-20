@@ -190,7 +190,7 @@ function standardizeOptions(options) {
     return options
 }
 
-function generate(source, dest, tileset, options, callback) {
+function generate(source, dest, tileset, options) {
     options = standardizeOptions(options)
     let verbose = options.verbose || options.verboseEx
     let verboseEx = options.verboseEx
