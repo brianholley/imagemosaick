@@ -1,6 +1,7 @@
 # imagemosaick
 Image mosaic generation library using imagemagick
 
+[![Build Status](https://travis-ci.org/brianholley/imagemosaick.svg?branch=master)](https://travis-ci.org/brianholley/imagemosaick)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
 ## Installation
