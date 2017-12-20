@@ -1,6 +1,6 @@
 var fs = require('fs')
 var os = require('os')
-var uuid = require('node-uuid')
+var uuidv4 = require('uuid/v4')
 var path = require('path')
 var rgbToHsl = require('rgb-to-hsl')
 
@@ -218,7 +218,7 @@ function generate(source, dest, tileset, options, callback) {
             if (verbose) console.log(`Snapped to ${columns}x${rows}`)
         }
 
-        let sourceRgbaFile = path.join(os.tmpdir(), uuid.v4() + '.rgba')
+        let sourceRgbaFile = path.join(os.tmpdir(), uuidv4() + '.rgba')
         return resize(source, sourceRgbaFile, columns, rows, 'RGBA')
     }).then(file => {
         let bytes = fs.readFileSync(file)
@@ -247,7 +247,7 @@ function generate(source, dest, tileset, options, callback) {
         var rtiles = Math.ceil(rows / tileSize)
         if (verbose) console.log(`Tile size: ${ctiles}x${rtiles}`)
         
-        var tempFolder = path.join(os.tmpdir(), '' + uuid.v4()) 
+        var tempFolder = path.join(os.tmpdir(), '' + uuidv4()) 
         if (verboseEx) console.log(`Tile render location: ${tempFolder}`)
         fs.mkdirSync(tempFolder)
 
