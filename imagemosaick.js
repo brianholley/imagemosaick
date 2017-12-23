@@ -118,39 +118,51 @@ class Tileset {
     this.defaultTile = this.findTileForPixel(color, 320)
   }
 
-  findMatchingTileByHsl (hue, sat, lum, maxDelta) {
+  getTileSimilarity (hue, sat, lum, tileOption) {
+    let dHue = (hue - tileOption.hue) / 320
+    let dSat = sat - tileOption.sat
+    let dLum = lum - tileOption.lum
+    return Math.sqrt(dHue * dHue + dSat * dSat + dLum * dLum)
+  }
+
+  findBestMatchingTileByHslWithHue (hue, sat, lum) {
     if (hue in this.hslTable) {
       var best = this.hslTable[hue][0]
-      var delta = Math.sqrt(Math.pow(best.sat - sat, 2) + Math.pow(best.lum - lum, 2))
+      var delta = this.getTileSimilarity(hue, sat, lum, best)
       for (var opt of this.hslTable[hue].slice(1)) {
-        var d = Math.sqrt(Math.pow(opt.sat - sat, 2) + Math.pow(opt.lum - lum, 2))
+        var d = this.getTileSimilarity(hue, sat, lum, opt)
         if (d < delta) {
           best = opt
           delta = d
         }
       }
-      if (delta < maxDelta) {
-        return best.file
-      }
+      return { best, delta }
     }
     return null
   }
 
-  findTileForPixel (rgb, threshold) {
+  findTileForPixel (rgb, hueMatchThreshold) {
     var hsl = rgbToHsl(rgb.red, rgb.green, rgb.blue)
     var hue = Math.floor(hsl[0])
     var sat = parseFloat(hsl[1].substring(0, hsl[1].length - 1)) / 100
     var lum = parseFloat(hsl[2].substring(0, hsl[2].length - 1)) / 100
 
-    for (var i = 0; i < threshold; i++) {
-      var match = this.findMatchingTileByHsl(hue + i, sat, lum, i * 0.05)
-      if (match !== null) {
-        return match
+    var best = null
+    var delta = 1000
+    for (var i = 0; i < hueMatchThreshold; i++) {
+      var match = this.findBestMatchingTileByHslWithHue(hue + i, sat, lum)
+      if (match !== null && match.delta < delta) {
+        best = match.best
+        delta = match.delta
       }
-      match = this.findMatchingTileByHsl(hue - i, sat, lum, i * 0.05)
-      if (match !== null) {
-        return match
+      match = this.findBestMatchingTileByHslWithHue(hue - i, sat, lum)
+      if (match !== null && match.delta < delta) {
+        best = match.best
+        delta = match.delta
       }
+    }
+    if (best != null) {
+      return best.file
     }
     console.log(`Could not find color match for RGB ${JSON.stringify(rgb)} ${JSON.stringify(hsl)}`)
     return this.defaultTile
