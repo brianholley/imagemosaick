@@ -43,7 +43,7 @@ class Tileset {
     this.folder = folder
     this.tileSize = tileSize
     this.hslTable = null
-    this.cacheBase = path.join(os.tmpdir(), 'tileset-' + path.dirname(folder))
+    this.cacheBase = path.join(os.tmpdir(), 'tileset-' + path.basename(folder))
   }
 
   colorTableRecurse (i, files, colors) {
@@ -110,6 +110,10 @@ class Tileset {
     })
   }
 
+  setDefaultColor (color) {
+    this.defaultTile = this.findTileForPixel(color, 320)
+  }
+
   findMatchingTileByHsl (hue, sat, lum, maxDelta) {
     if (hue in this.hslTable) {
       var best = this.hslTable[hue][0]
@@ -144,13 +148,14 @@ class Tileset {
         return match
       }
     }
-    throw new Error('Could not find color match for RGB ' + JSON.stringify(rgb) + ' ' + JSON.stringify(hsl))
+    console.log(`Could not find color match for RGB ${JSON.stringify(rgb)} ${JSON.stringify(hsl)}`)
+    return this.defaultTile
   }
 }
 
 exports.Tileset = Tileset
 
-function renderTile (columns, rows, start, rowOffset, tiles, tileSize, dest, options) {
+function renderFragment (columns, rows, start, rowOffset, tiles, tileSize, dest, options) {
   var cmd = []
   for (var r = 0; r < rows; r++) {
     for (var c = 0; c < columns; c++) {
@@ -175,7 +180,7 @@ function standardizeOptions (options) {
   options.verbose = optionOrDefault(options.verbose, false)
   options.verboseEx = optionOrDefault(options.verboseEx, false)
   options.maxMosaicSize = optionOrDefault(options.maxMosaicSize, 200)
-  options.threshold = optionOrDefault(options.threshold, 256)
+  options.threshold = optionOrDefault(options.threshold, 320)
 
   return options
 }
@@ -191,6 +196,10 @@ function generate (source, dest, tileset, options) {
   var rows = 0
   return tileset.load().then(() => {
     if (verbose) console.log(`Tileset loaded`)
+    return reduceImageToColor(source)
+  }).then(imageColor => {
+    if (verbose) console.log(`Image base color: ${JSON.stringify(imageColor)}`)
+    tileset.setDefaultColor(imageColor)
     return imp.identify(source)
   }).then(identity => {
     columns = Math.round(identity.width / tileset.tileSize)
@@ -230,11 +239,11 @@ function generate (source, dest, tileset, options) {
     }
     return tiles
   }).then(tiles => {
-    const tileSize = 10
+    const fragmentSize = 10
 
     var cmd = []
-    var ctiles = Math.ceil(columns / tileSize)
-    var rtiles = Math.ceil(rows / tileSize)
+    var ctiles = Math.ceil(columns / fragmentSize)
+    var rtiles = Math.ceil(rows / fragmentSize)
     if (verbose) console.log(`Tile size: ${ctiles}x${rtiles}`)
 
     var tempFolder = path.join(os.tmpdir(), '' + uuidv4())
@@ -246,14 +255,14 @@ function generate (source, dest, tileset, options) {
       for (var c = 0; c < ctiles; c++) {
         if (verboseEx) console.log(`Tile: ${c},${r}`)
 
-        let tileBase = c * tileSize + r * tileSize * columns
+        let tileBase = c * fragmentSize + r * fragmentSize * columns
         let tileName = `${tempFolder}/tile_${c}_${r}.png`
-        let tileW = (c < ctiles - 1 ? tileSize : columns - c * tileSize)
-        let tileH = (r < rtiles - 1 ? tileSize : rows - r * tileSize)
-        let render = renderTile(tileW, tileH, tileBase, columns, tiles, tileSize, tileName, options)
+        let tileW = (c < ctiles - 1 ? fragmentSize : columns - c * fragmentSize)
+        let tileH = (r < rtiles - 1 ? fragmentSize : rows - r * fragmentSize)
+        let render = renderFragment(tileW, tileH, tileBase, columns, tiles, tileset.tileSize, tileName, options)
         tileRenders = [...tileRenders, render]
 
-        let offset = '+' + (tileSize * tileSize * c) + '+' + (tileSize * tileSize * r)
+        let offset = '+' + (fragmentSize * tileset.tileSize * c) + '+' + (fragmentSize * tileset.tileSize * r)
         cmd = [...cmd, '-page', offset, tileName]
       }
     }
