@@ -15,7 +15,7 @@ npm install imagemosaick
 ```javascript
 var mosaick = require('imagemosaick')
 
-let tilesFolder = 'tileset'
+let tilesFolder = './tileset'
 let tileSize = 16
 var tileset = new mosaick.Tileset(
     tilesFolder,
@@ -23,10 +23,18 @@ var tileset = new mosaick.Tileset(
 
 let input = 'inputFile.png'
 let output = 'outputFile.png'
-mosaick.generate(input, output, tileset)
+let options = { }
+mosaick.generate(input, output, tileset, options)
     .then(() => { console.log('Finished!') })
 ```
 
 ## Options
 
-Coming soon...
+Mosaic generation curently supports the following options:
+
+| Option        | Description | Default |
+| ------------- | ----------- | ------- |
+| verbose       | Enable verbose stdout logging | false |
+| verboseEx     | Enable extra verbose stdout logging (VERY verbose) | false |
+| maxMosaicSize | Maximum mosaic size in # of tiles (scale source image down to fit if necessary) | 200 |
+| threshold     | Experimental: Hue match threshold (0-320) | 320 |
