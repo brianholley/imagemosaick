@@ -19,20 +19,18 @@ if (process.argv.length >= 4) {
 } else {
   console.log(`UNIT TEST MODE`)
 
-  tileset.load().then(() => {
-    let srcFolder = path.join('.', 'test', 'color')
-    let outFolder = fs.mkdtempSync(path.join(os.tmpdir(), 'imagemosaicktest-'))
-    let files = fs.readdirSync(srcFolder)
-    let generators = files.map((f) => {
-      console.log(`Generating mosaic for ${f}`)
-      let inFile = path.join(srcFolder, f)
-      let outFile = path.join(outFolder, f)
-      return mosaick.generate(inFile, outFile, tileset)
-    })
-    Promise.all(generators).then(() => {
-      console.log(`PASS`)
-    }).catch(err => {
-      console.log(`FAIL: ${err}`)
-    })
+  let srcFolder = path.join('.', 'test', 'color')
+  let outFolder = fs.mkdtempSync(path.join(os.tmpdir(), 'imagemosaicktest-'))
+  let files = fs.readdirSync(srcFolder)
+  let generators = files.map((f) => {
+    console.log(`Generating mosaic for ${f}`)
+    let inFile = path.join(srcFolder, f)
+    let outFile = path.join(outFolder, f)
+    return mosaick.generate(inFile, outFile, tileset)
+  })
+  Promise.all(generators).then(() => {
+    console.log(`PASS`)
+  }).catch(err => {
+    console.log(`FAIL: ${err}`)
   })
 }

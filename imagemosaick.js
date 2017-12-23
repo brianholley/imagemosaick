@@ -76,13 +76,16 @@ class Tileset {
     if (this.hslTable != null) {
       return new Promise((resolve, reject) => resolve())
     }
+    if (this.loadTask != null) {
+      return this.loadTask
+    }
 
     if (!fs.existsSync(this.cacheBase)) {
       fs.mkdirSync(this.cacheBase)
     }
 
     let colorTableFile = path.join(this.cacheBase, 'colors.json')
-    return new Promise((resolve, reject) => {
+    this.loadTask = new Promise((resolve, reject) => {
       if (!fs.existsSync(colorTableFile)) {
         console.log(`Generating new color table file at ${colorTableFile}`)
         this.generateColorTableAndCache(colorTableFile).then(colorTable => {
@@ -108,6 +111,7 @@ class Tileset {
         }]
       }
     })
+    return this.loadTask
   }
 
   setDefaultColor (color) {
