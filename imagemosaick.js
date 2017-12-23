@@ -119,7 +119,7 @@ class Tileset {
   }
 
   getTileSimilarity (hue, sat, lum, tileOption) {
-    let dHue = (hue - tileOption.hue) / 320
+    let dHue = hue - tileOption.hue
     let dSat = sat - tileOption.sat
     let dLum = lum - tileOption.lum
     return Math.sqrt(dHue * dHue + dSat * dSat + dLum * dLum)
