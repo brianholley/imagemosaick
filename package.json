@@ -1,6 +1,6 @@
 {
   "name": "imagemosaick",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Mosaic image generation utility using ImageMagick",
   "main": "imagemosaick.js",
   "keywords": [
