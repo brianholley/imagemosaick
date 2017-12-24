@@ -37,4 +37,4 @@ Mosaic generation curently supports the following options:
 | verbose       | Enable verbose stdout logging | false |
 | verboseEx     | Enable extra verbose stdout logging (VERY verbose) | false |
 | maxMosaicSize | Maximum mosaic size in # of tiles (scale source image down to fit if necessary) | 200 |
-| threshold     | Experimental: Hue match threshold (0-320) | 320 |
+| threshold     | Hue match threshold (0-320) - how far should the color match go? | 60 |

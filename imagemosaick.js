@@ -120,8 +120,8 @@ class Tileset {
 
   getTileSimilarity (hue, sat, lum, tileOption) {
     let dHue = hue - tileOption.hue
-    let dSat = sat - tileOption.sat
-    let dLum = lum - tileOption.lum
+    let dSat = (sat - tileOption.sat) / 3
+    let dLum = (lum - tileOption.lum) / 3
     return Math.sqrt(dHue * dHue + dSat * dSat + dLum * dLum)
   }
 
@@ -149,7 +149,7 @@ class Tileset {
 
     var best = null
     var delta = 1000
-    for (var i = 0; i < hueMatchThreshold; i++) {
+    for (var i = 0; i <= hueMatchThreshold; i++) {
       var match = this.findBestMatchingTileByHslWithHue(hue + i, sat, lum)
       if (match !== null && match.delta < delta) {
         best = match.best
@@ -196,7 +196,7 @@ function standardizeOptions (options) {
   options.verbose = optionOrDefault(options.verbose, false)
   options.verboseEx = optionOrDefault(options.verboseEx, false)
   options.maxMosaicSize = optionOrDefault(options.maxMosaicSize, 200)
-  options.threshold = optionOrDefault(options.threshold, 320)
+  options.threshold = optionOrDefault(options.threshold, 60)
 
   return options
 }
@@ -216,6 +216,7 @@ function generate (source, dest, tileset, options) {
   }).then(imageColor => {
     if (verbose) console.log(`Image base color: ${JSON.stringify(imageColor)}`)
     tileset.setDefaultColor(imageColor)
+    if (verbose) console.log(`Base tile: ${JSON.stringify(tileset.defaultTile)}`)
     return imp.identify(source)
   }).then(identity => {
     columns = Math.round(identity.width / tileset.tileSize)
